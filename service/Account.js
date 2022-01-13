@@ -1,4 +1,4 @@
-class Bank {
+class Account {
   constructor(id, name, amount, type, date) {
     this.id = id;
     this.name = name;
@@ -7,4 +7,4 @@ class Bank {
     this.date = date;
   }
 }
-module.exports = Bank;
+module.exports = Account;

@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 const User = require("./User");
-const Bank = require("./Bank");
+const Account = require("./Account");
 const uuid = require("uuid");
 const { get } = require("express/lib/response");
 
@@ -79,6 +79,28 @@ class AcountMysqlRepo {
         let data = res[0];
         let user = new User(data.id, data.name, data.balance, data.password);
         resolve(user);
+      });
+    });
+  }
+
+  getTransection(name) {
+    let tnxList = new Array();
+    return new Promise((resolve, reject) => {
+      let slq = `select * from BankTransection  WHERE name = '${name}' `;
+      con.query(slq, (err, res) => {
+        if (err) return reject(err);
+        for (let data of res) {
+          let transection = new Account(
+            data.id,
+            data.name,
+            data.amount,
+            data.type,
+            data.date
+          );
+          tnxList.push(transection);
+        }
+
+        resolve(tnxList);
       });
     });
   }
