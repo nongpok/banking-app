@@ -117,6 +117,40 @@ class AcountMysqlRepo {
       console.log("transection succesfull");
     });
   }
-  withdrwal(id, amount) {}
+  async withdrwal(name, amount) {
+    const user = await this.getUser(name).then((r) => r);
+    console.log(user);
+    const trnxId = uuid.v4();
+    con.beginTransaction((err) => {
+      if (err) throw err;
+      let sql1 = `INSERT INTO BankTransection(id,name,amount,type,date)VALUES('${trnxId}','${
+        user.name
+      }','${user.balance - amount}','W','${new Date()}') `;
+
+      let sql2 = `UPDATE USER SET balance = balance - ${amount} WHERE name ='${name}'`;
+      con.query(sql1, (err, res) => {
+        if (err) {
+          return con.rollback(function () {
+            throw err;
+          });
+        }
+      });
+      con.query(sql2, (err, res) => {
+        if (err) {
+          return con.rollback(function () {
+            throw err;
+          });
+        }
+      });
+      con.commit((err) => {
+        if (err) {
+          return con.rollback(function () {
+            throw err;
+          });
+        }
+      });
+      console.log("transection succesfull");
+    });
+  }
 }
 module.exports = AcountMysqlRepo;
