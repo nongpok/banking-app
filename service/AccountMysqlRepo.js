@@ -2,22 +2,22 @@ const mysql = require("mysql");
 const User = require("./User");
 const Account = require("./Account");
 const uuid = require("uuid");
-const { get } = require("express/lib/response");
 
-// const ContactService = require("./ContactServices");
 
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "root",
-  database: "transection",
+  database: "transaction",
 });
+
 con.connect(function (err) {
   if (err) throw err;
   console.log("Connected!");
 });
 
-class AcountMysqlRepo {
+class AccountMysqlRepo {
+  
   addUser(user) {
     console.log(user);
 
@@ -32,8 +32,8 @@ class AcountMysqlRepo {
           });
         }
       });
-      const trnxId = uuid.v4();
-      const sql2 = `INSERT INTO BankTransection(id,name,amount,type,date)VALUES('${trnxId}','${
+      const txnId = uuid.v4();
+      const sql2 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
         user.name
       }','${user.balance}','D','${new Date()}')`;
       con.query(sql2, (err, res) => {
@@ -83,34 +83,35 @@ class AcountMysqlRepo {
     });
   }
 
-  getTransection(name) {
-    let tnxList = new Array();
+  getTransaction(name) {
+    let txnList = new Array();
     return new Promise((resolve, reject) => {
-      let slq = `select * from BankTransection  WHERE name = '${name}' `;
+      let slq = `select * from transaction  WHERE name = '${name}' `;
       con.query(slq, (err, res) => {
         if (err) return reject(err);
         for (let data of res) {
-          let transection = new Account(
+          let transaction = new Account(
             data.id,
             data.name,
             data.amount,
             data.type,
             data.date
           );
-          tnxList.push(transection);
+          txnList.push(transaction);
         }
 
-        resolve(tnxList);
+        resolve(txnList);
       });
     });
   }
+
   async deposit(name, amount) {
     const user = await this.getUser(name).then((r) => r);
     console.log(user);
-    const trnxId = uuid.v4();
-    con.beginTransaction((err) => {
+    const txnId = uuid.v4();
+    con.beginTransaction((err) => { 
       if (err) throw err;
-      let sql1 = `INSERT INTO BankTransection(id,name,amount,type,date)VALUES('${trnxId}','${
+      let sql1 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
         user.name
       }','${user.balance + amount}','D','${new Date()}') `;
 
@@ -136,16 +137,18 @@ class AcountMysqlRepo {
           });
         }
       });
-      console.log("transection succesfull");
+      console.log("transaction successful");
     });
   }
-  async withdrwal(name, amount) {
+
+
+  async withdraw(name, amount) {
     const user = await this.getUser(name).then((r) => r);
     console.log(user);
-    const trnxId = uuid.v4();
+    const txnId = uuid.v4();
     con.beginTransaction((err) => {
       if (err) throw err;
-      let sql1 = `INSERT INTO BankTransection(id,name,amount,type,date)VALUES('${trnxId}','${
+      let sql1 = `INSERT INTO Transaction(id,name,amount,type,date)VALUES('${txnId}','${
         user.name
       }','${user.balance - amount}','W','${new Date()}') `;
 
@@ -171,8 +174,8 @@ class AcountMysqlRepo {
           });
         }
       });
-      console.log("transection succesfull");
+      console.log("transaction successful");
     });
   }
 }
-module.exports = AcountMysqlRepo;
+module.exports = AccountMysqlRepo;

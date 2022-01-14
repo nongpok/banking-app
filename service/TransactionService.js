@@ -1,4 +1,4 @@
-class TransectionService {
+class TransactionService {
   constructor(repo) {
     this.repo = repo;
   }
