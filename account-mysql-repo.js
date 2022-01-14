@@ -24,8 +24,7 @@ class AccountMysqlRepo {
 
     con.beginTransaction((err) => {
       if (err) throw err;
-      let userId = uuid.v4();
-      const sql1 = `INSERT INTO USER(id,name,balance,password)VALUES('${userId}','${user.name}','${user.balance}','${user.password}') `;
+      const sql1 = `INSERT INTO USER(id,name,balance,password)VALUES('${user.id}','${user.name}','${user.balance}','${user.password}') `;
       con.query(sql1, (err, res) => {
         if (err) {
           return con.rollback(function () {
@@ -35,7 +34,7 @@ class AccountMysqlRepo {
       });
 
       const txnId = uuid.v4();
-      const sql2 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
+      const sql2 = `INSERT INTO transaction(id, name, amount, type, date)VALUES('${txnId}','${
         user.name
       }','${user.balance}','D','${new Date()}')`;
 
@@ -67,7 +66,6 @@ class AccountMysqlRepo {
 
         for (let u of res) {
           let user = new User(u.id, u.name, u.balance, u.password);
-
           userList.push(user);
         }
         resolve(userList);
