@@ -3,7 +3,6 @@ const User = require("../services/User");
 const Transaction = require("../services/Transaction");
 const uuid = require("uuid");
 
-
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -11,14 +10,12 @@ var con = mysql.createConnection({
   database: "account_db",
 });
 
-
 con.connect(function (err) {
   if (err) throw err;
   console.log("Connected!");
 });
 
 class AccountMysqlRepo {
-  
   addUser(user) {
     console.log(user);
 
@@ -45,7 +42,7 @@ class AccountMysqlRepo {
           });
         }
       });
-      
+
       con.commit((err) => {
         if (err) {
           return con.rollback(function () {
@@ -108,12 +105,11 @@ class AccountMysqlRepo {
   }
 
   async deposit(name, amount) {
-
     const user = await this.getUser(name).then((r) => r);
     console.log(user);
     const txnId = uuid.v4();
 
-    con.beginTransaction((err) => { 
+    con.beginTransaction((err) => {
       if (err) throw err;
       let sql1 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
         user.name
@@ -147,9 +143,7 @@ class AccountMysqlRepo {
     });
   }
 
-
   async withdraw(name, amount) {
-
     const user = await this.getUser(name).then((r) => r);
     console.log(user);
     const txnId = uuid.v4();
