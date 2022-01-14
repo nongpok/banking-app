@@ -1,6 +1,6 @@
 const mysql = require("mysql");
-const User = require("./services/User");
-const Transaction = require("./services/Transaction");
+const User = require("../services/User");
+const Transaction = require("../services/Transaction");
 const uuid = require("uuid");
 
 
@@ -85,7 +85,7 @@ class AccountMysqlRepo {
     });
   }
 
-  getTransaction(name) {
+  getTransactions(name) {
     let txnList = new Array();
     return new Promise((resolve, reject) => {
       let slq = `select * from transaction  WHERE name = '${name}' `;
@@ -117,7 +117,7 @@ class AccountMysqlRepo {
       if (err) throw err;
       let sql1 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
         user.name
-      }','${user.balance + amount}','D','${new Date()}') `;
+      }','${amount}','D','${new Date()}') `;
 
       let sql2 = `UPDATE USER SET balance = balance + ${amount} WHERE name ='${name}'`;
       con.query(sql1, (err, res) => {
@@ -158,7 +158,7 @@ class AccountMysqlRepo {
       if (err) throw err;
       let sql1 = `INSERT INTO Transaction(id, name, amount, type, date) VALUES ('${txnId}','${
         user.name
-      }','${user.balance - amount}','W','${new Date()}') `;
+      }','${amount}','W','${new Date()}') `;
 
       let sql2 = `UPDATE USER SET balance = balance - ${amount} WHERE name ='${name}'`;
       con.query(sql1, (err, res) => {

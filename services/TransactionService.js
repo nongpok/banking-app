@@ -1,18 +1,24 @@
+
 class TransactionService {
 
-  constructor(repo) {
-    this.repo = repo;
+  constructor(sqlRepo) {
+    this.sqlRepo = sqlRepo;
   }
 
-  addUser(user) {
-    this.repo.addUser(user);
+  performTransaction(transaction){
+    if(transaction.type === 'deposit') {
+      this.sqlRepo.deposit(transaction.name, transaction.amount);
+      return;
+    } 
+
+    if(transaction.type === 'withdraw') {
+      this.sqlRepo.withdraw(transaction.name, transaction.amount);
+    }
   }
 
-  addUserToBank(bank) {
-    this.repo.addUserToBank(bank);
-  }
-  
-  async getUser() {
-    return this.repo.getUser();
+  async getTransactions(name){
+    return this.sqlRepo.getTransactions(name);
   }
 }
+
+module.exports = TransactionService;
