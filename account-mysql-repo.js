@@ -1,6 +1,6 @@
 const mysql = require("mysql");
-const User = require("./User");
-const Account = require("./Account");
+const User = require("./services/User");
+const Transaction = require("./services/Transaction");
 const uuid = require("uuid");
 
 
@@ -8,8 +8,9 @@ var con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "root",
-  database: "transaction",
+  database: "account_db",
 });
+
 
 con.connect(function (err) {
   if (err) throw err;
@@ -32,10 +33,12 @@ class AccountMysqlRepo {
           });
         }
       });
+
       const txnId = uuid.v4();
       const sql2 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
         user.name
       }','${user.balance}','D','${new Date()}')`;
+
       con.query(sql2, (err, res) => {
         if (err) {
           return con.rollback(function () {
@@ -43,6 +46,7 @@ class AccountMysqlRepo {
           });
         }
       });
+      
       con.commit((err) => {
         if (err) {
           return con.rollback(function () {
@@ -90,7 +94,7 @@ class AccountMysqlRepo {
       con.query(slq, (err, res) => {
         if (err) return reject(err);
         for (let data of res) {
-          let transaction = new Account(
+          let transaction = new Transaction(
             data.id,
             data.name,
             data.amount,
@@ -106,9 +110,11 @@ class AccountMysqlRepo {
   }
 
   async deposit(name, amount) {
+
     const user = await this.getUser(name).then((r) => r);
     console.log(user);
     const txnId = uuid.v4();
+
     con.beginTransaction((err) => { 
       if (err) throw err;
       let sql1 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
@@ -123,6 +129,7 @@ class AccountMysqlRepo {
           });
         }
       });
+
       con.query(sql2, (err, res) => {
         if (err) {
           return con.rollback(function () {
@@ -130,6 +137,7 @@ class AccountMysqlRepo {
           });
         }
       });
+
       con.commit((err) => {
         if (err) {
           return con.rollback(function () {
@@ -143,12 +151,14 @@ class AccountMysqlRepo {
 
 
   async withdraw(name, amount) {
+
     const user = await this.getUser(name).then((r) => r);
     console.log(user);
     const txnId = uuid.v4();
+
     con.beginTransaction((err) => {
       if (err) throw err;
-      let sql1 = `INSERT INTO Transaction(id,name,amount,type,date)VALUES('${txnId}','${
+      let sql1 = `INSERT INTO Transaction(id, name, amount, type, date) VALUES ('${txnId}','${
         user.name
       }','${user.balance - amount}','W','${new Date()}') `;
 
@@ -160,6 +170,7 @@ class AccountMysqlRepo {
           });
         }
       });
+
       con.query(sql2, (err, res) => {
         if (err) {
           return con.rollback(function () {
@@ -167,6 +178,7 @@ class AccountMysqlRepo {
           });
         }
       });
+
       con.commit((err) => {
         if (err) {
           return con.rollback(function () {
@@ -178,4 +190,5 @@ class AccountMysqlRepo {
     });
   }
 }
+
 module.exports = AccountMysqlRepo;

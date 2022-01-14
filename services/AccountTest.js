@@ -1,5 +1,5 @@
-const AccountRepo = require("./AcountMysqlRepo");
-const Bank = require("./Account");
+const AccountRepo = require("../account-mysql-repo");
+const Bank = require("./Transaction");
 const User = require("./User");
 const repo = new AccountRepo();
 
@@ -7,5 +7,5 @@ const repo = new AccountRepo();
 // repo.deposit("ankit", 500);
 // repo.withdrwal("ankit", 500);
 
-repo.getTransection("ankit").then((res) => console.log(res));
+repo.getTransaction("ankit").then((res) => console.log(res));
 // repo.getUser("ankit").then((res) => console.log(res));

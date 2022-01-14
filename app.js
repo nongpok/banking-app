@@ -4,16 +4,15 @@ const cors = require('cors');
 const app = express();
 const port = 8000;
 
+const AccountController = require('./account-controller')
+
 
 app.use(express.urlencoded({ 'extended' : true}));
 app.use(express.json());
 app.use(cors());
 
 
-app.get('/', (req, res)=>{
-    res.send('<h1>Welcome to Banking App</h1>')
-});
-
+new AccountController(app);
 
 app.listen(port, function(err){
     if(err){
