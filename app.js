@@ -8,13 +8,29 @@ const port = 8000;
 const AccountController = require('./controllers/account-controller');
 const TransactionController = require('./controllers/transaction-controller');
 
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
+
+// Swagger Configuration
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Banking App Api',
+            version: '1.0.0'
+        }
+    },
+    apis: ['./controllers/account-controller.js', './controllers/transaction-controller.js'],
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+
 app.use(express.urlencoded({ 'extended' : true}));
 app.use(express.json());
 app.use(cors());
 
-
-new AccountController(app);
-new TransactionController(app);
+new AccountController(app, swaggerDocs);
+new TransactionController(app, swaggerDocs);
 
 app.listen(port, function(err){
     if(err){
