@@ -98,6 +98,11 @@ module.exports = function (app, swaggerDocs) {
     const password = req.body.password;
 
     let user = await userService.getUser(name);
+    
+    if(!user.length){
+      res.status(500).send('Invalid user');
+      return;
+    }
 
     if(await bcrypt.compare(password, user.password)){
       console.log("logged in successfully");

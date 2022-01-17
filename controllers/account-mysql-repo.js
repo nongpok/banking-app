@@ -75,9 +75,13 @@ class AccountMysqlRepo {
       let slq = `select * from USER WHERE name = '${name}' `;
       con.query(slq, (err, res) => {
         if (err) return reject(err);
-        let data = res[0];
-        let user = new User(data.id, data.name, data.balance, data.password);
-        resolve(user);
+        // if(res.length == 0){
+        //   let data = res[0];
+        //   let user = new User(data.id, data.name, data.balance, data.password);
+        //   resolve(user);
+        // }
+        resolve(res);
+        
       });
     });
   }
