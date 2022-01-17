@@ -6,7 +6,7 @@ const uuid = require("uuid");
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "mysql512096",
   database: "account_db",
 });
 
