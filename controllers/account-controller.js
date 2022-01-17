@@ -99,7 +99,7 @@ module.exports = function (app, swaggerDocs) {
 
     let user = await userService.getUser(name);
     
-    if(!user.length){
+    if(user.length == 0){
       res.status(500).send('Invalid user');
       return;
     }
