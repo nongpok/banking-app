@@ -85,11 +85,28 @@ class AccountMysqlRepo {
     });
   }
 
+
+  getAllUsersTransactions() {
+    let txnList = new Array();
+    return new Promise((resolve, reject) => {
+      let sql = "select * from transaction ";
+      con.query(sql, (err, res) => {
+        if (err) return reject(err);
+
+        for (let t of res) {
+          let txn = new Transaction(t.id, t.name, t.amount, t.type, t.date);
+          txnList.push(txn);
+        }
+        resolve(txnList);
+      });
+    });
+  }
+
   getTransactions(name) {
     let txnList = new Array();
     return new Promise((resolve, reject) => {
-      let slq = `select * from transaction  WHERE name = '${name}' `;
-      con.query(slq, (err, res) => {
+      let sql = `select * from transaction  WHERE name = '${name}' `;
+      con.query(sql, (err, res) => {
         if (err) return reject(err);
         for (let data of res) {
           let transaction = new Transaction(

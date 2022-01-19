@@ -7,9 +7,11 @@ const port = 8000;
 
 const AccountController = require('./controllers/account-controller');
 const TransactionController = require('./controllers/transaction-controller');
+const AdminController = require('./controllers/admin-controller');
 
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
+const adminController = require('./controllers/admin-controller');
 
 // Swagger Configuration
 const swaggerOptions = {
@@ -29,6 +31,7 @@ app.use(express.urlencoded({ 'extended' : true}));
 app.use(express.json());
 app.use(cors());
 
+new AdminController(app);
 new AccountController(app, swaggerDocs);
 new TransactionController(app, swaggerDocs);
 

@@ -120,24 +120,6 @@ module.exports = function (app, swaggerDocs) {
 
   /** 
   * @swagger 
-  * /api/v1/account/users: 
-  *  get:
-  *     summary: Get all the users
-  *     description: Get all the users
-  *     tags: [Account Controller]
-  *     responses:  
-  *       200: 
-  *         description: Success    
-  */
-  app.get("/api/v1/account/users", async (req, res) => {
-    let users = await userService.getUsers();
-    res.json(users);
-  });
-
-
-
-  /** 
-  * @swagger 
   * /api/v1/account/users/{username}: 
   *  get:
   *     summary: Get a user
