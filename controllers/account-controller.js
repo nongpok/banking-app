@@ -1,8 +1,11 @@
+require('dotenv').config();
+
 const User = require("../services/User");
 const UserService = require("../services/UserService");
 const AccountMysqlRepo = require("./account-mysql-repo");
 const uuid = require("uuid");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 
 const swaggerUI = require('swagger-ui-express');
 
@@ -14,7 +17,7 @@ module.exports = function (app, swaggerDocs) {
 
   app.get("/", (req, res) => {
     return res.send("<h1>Welcome to Banking App</h1>");
-  });
+  }) ;
 
   /**
   * @swagger
@@ -103,15 +106,15 @@ module.exports = function (app, swaggerDocs) {
       res.status(500).send('Invalid user');
       return;
     }
-
+    //authenticate user
     if(await bcrypt.compare(password, user.password)){
-      console.log("logged in successfully");
-      res.json(user);
+      const payload = {id: user.id, name: user.name};
+      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '10m'});
+      res.json({accessToken: accessToken});
       return;
     }
-    console.log("Incorrect password");
-    res.status(500).send('Incorrect Password');
 
+    res.status(500).send('Incorrect Password');
   });
 
 
@@ -156,4 +159,5 @@ module.exports = function (app, swaggerDocs) {
     let user = await userService.getUser(req.params.name);
     res.json(user);
   });
+
 };

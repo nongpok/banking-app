@@ -3,7 +3,7 @@ const TransactionService = require('../services/TransactionService');
 const Transaction = require('../services/Transaction');
 const AccountMysqlRepo = require('./account-mysql-repo');
 const uuid = require("uuid");
-
+const jwt = require('jsonwebtoken');
 const swaggerUI = require('swagger-ui-express');
 
 module.exports = function(app, swaggerDocs){
@@ -53,7 +53,7 @@ module.exports = function(app, swaggerDocs){
     *         description: Success
     *   
     */
-    app.post('/api/v1/account/:name/transaction', async (req, res)=>{
+    app.post('/api/v1/account/:name/transaction', authenticateToken, async (req, res)=>{
 
         const id = uuid.v4();
         const name = req.params.name;
@@ -86,9 +86,24 @@ module.exports = function(app, swaggerDocs){
     *         description: Success
     *   
     */ 
-    app.get('/api/v1/account/:name/passbook', async (req, res)=>{
+    app.get('/api/v1/account/:name/passbook', authenticateToken, async (req, res)=>{
         let transactions = await transactionService.getTransactions(req.params.name);
         res.json(transactions);
     });
+
+
+    function authenticateToken(req, res, next){
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if(token == null) return res.sendStatus(401);
+    
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+          if(err) return res.sendStatus(403);
+          req.user = payload;
+
+          if(payload.name != req.params.name) return res.sendStatus(401);
+          next();
+        });
+    }
     
 }
