@@ -6,6 +6,7 @@ const AccountMysqlRepo = require("./account-mysql-repo");
 const uuid = require("uuid");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const moment = require("moment");
 
 const swaggerUI = require('swagger-ui-express');
 
@@ -60,6 +61,7 @@ module.exports = function (app, swaggerDocs) {
 
     const allUsers = await userService.getUsers();
     const accno = 'ACC00' + (allUsers.length + 1);
+    const date = moment(new Date()).format("YYYY-MM-DD");
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User(
       accno,
@@ -68,7 +70,7 @@ module.exports = function (app, swaggerDocs) {
       Number(req.body.balance),
       req.body.email,
       req.body.phone,
-      req.body.date,
+      date,
       hashedPassword
     );
     await userService.addUser(user);
