@@ -1,7 +1,9 @@
 class Transaction {
-  constructor(id, name, amount, type, date) {
+  constructor(id, accno, firstName, lastName, amount, type, date) {
     this.id = id;
-    this.name = name;
+    this.accno = accno;
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.amount = amount;
     this.type = type;
     this.date = date;

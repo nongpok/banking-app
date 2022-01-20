@@ -57,11 +57,18 @@ module.exports = function (app, swaggerDocs) {
   *   
   */
   app.post("/api/v1/account/registration", async (req, res) => {
+
+    const allUsers = await userService.getUsers();
+    const accno = 'ACC00' + (allUsers.length + 1);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User(
-      uuid.v4(),
-      req.body.name,
+      accno,
+      req.body.firstName,
+      req.body.lastName,
       Number(req.body.balance),
+      req.body.email,
+      req.body.phone,
+      req.body.date,
       hashedPassword
     );
     await userService.addUser(user);
@@ -108,38 +115,13 @@ module.exports = function (app, swaggerDocs) {
     }
     //authenticate user
     if(await bcrypt.compare(password, user.password)){
-      const payload = {id: user.id, name: user.name};
-      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '10m'});
-      res.json({accessToken: accessToken});
+      const payload = {id: user.accno, name: user.firstName};
+      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '20m'});
+      res.json({accessToken: accessToken, payload: payload});
       return;
     }
 
     res.status(500).send('Incorrect Password');
-  });
-
-
-  /** 
-  * @swagger 
-  * /api/v1/account/users/{username}: 
-  *  get:
-  *     summary: Get a user
-  *     description: Get a user by username
-  *     tags: [Account Controller]
-  *     parameters:
-  *           - in: path
-  *             name: username
-  *             schema:
-  *               type: string
-  *             required: true
-  *                          
-  *     responses:  
-  *       201: 
-  *         description: Success
-  *   
-  */
-  app.get("/api/v1/account/users/:name", async (req, res) => {
-    let user = await userService.getUser(req.params.name);
-    res.json(user);
   });
 
 };

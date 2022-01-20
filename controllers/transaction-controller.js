@@ -5,11 +5,14 @@ const AccountMysqlRepo = require('./account-mysql-repo');
 const uuid = require("uuid");
 const jwt = require('jsonwebtoken');
 const swaggerUI = require('swagger-ui-express');
+const UserService = require('../services/UserService');
+const moment = require("moment");
 
 module.exports = function(app, swaggerDocs){
 
     const sqlRepo =  new AccountMysqlRepo();
     const transactionService = new TransactionService(sqlRepo);
+    const userService = new UserService(sqlRepo);
 
     app.use('/api-docs', swaggerUI.serve,swaggerUI.setup(swaggerDocs));
 
@@ -55,12 +58,16 @@ module.exports = function(app, swaggerDocs){
     */
     app.post('/api/v1/account/:name/transaction', authenticateToken, async (req, res)=>{
 
+        const user = await userService.getUser(req.params.name);
+        console.log(user);
         const id = uuid.v4();
-        const name = req.params.name;
+        const accno = user.accno;
+        const firstName = user.firstName;
+        const lastName = user.lastName;
         const amount = Number(req.body.amount);
         const type = req.body.transactionType;
-        const date = new Date();
-        let transaction = new Transaction(id, name, amount, type, date);
+        const date = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+        let transaction = new Transaction(id, accno, firstName, lastName, amount, type, date);
 
         transactionService.performTransaction(transaction);
         res.json(transaction);

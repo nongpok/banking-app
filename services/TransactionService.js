@@ -7,12 +7,12 @@ class TransactionService {
 
   performTransaction(transaction){
     if(transaction.type === 'deposit') {
-      this.sqlRepo.deposit(transaction.name, transaction.amount);
+      this.sqlRepo.deposit(transaction.firstName, transaction.amount);
       return;
     } 
 
     if(transaction.type === 'withdraw') {
-      this.sqlRepo.withdraw(transaction.name, transaction.amount);
+      this.sqlRepo.withdraw(transaction.firstName, transaction.amount);
     }
   }
 

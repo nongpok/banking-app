@@ -2,6 +2,7 @@ const mysql = require("mysql");
 const User = require("../services/User");
 const Transaction = require("../services/Transaction");
 const uuid = require("uuid");
+const moment = require("moment");
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -17,11 +18,10 @@ con.connect(function (err) {
 
 class AccountMysqlRepo {
   addUser(user) {
-    console.log(user);
 
     con.beginTransaction((err) => {
       if (err) throw err;
-      const sql1 = `INSERT INTO USER(id,name,balance,password)VALUES('${user.id}','${user.name}','${user.balance}','${user.password}') `;
+      const sql1 = `INSERT INTO USER (accno, firstName, lastName, balance, email, phone, date, password) VALUES ('${user.accno}','${user.firstName}','${user.lastName}','${user.balance}', '${user.email}','${user.phone}','${user.date}','${user.password}') `;
       con.query(sql1, (err, res) => {
         if (err) {
           return con.rollback(function () {
@@ -31,9 +31,9 @@ class AccountMysqlRepo {
       });
 
       const txnId = uuid.v4();
-      const sql2 = `INSERT INTO transaction(id, name, amount, type, date)VALUES('${txnId}','${
-        user.name
-      }','${user.balance}','D','${new Date()}')`;
+      const dateTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+      const sql2 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES ('${txnId}',
+      '${user.accno}', '${user.firstName}', '${user.lastName}', '${user.balance}', 'deposit', '${dateTime}')`;
 
       con.query(sql2, (err, res) => {
         if (err) {
@@ -54,15 +54,14 @@ class AccountMysqlRepo {
   }
 
   getUsers() {
-    console.log("get user called");
     let userList = new Array();
     return new Promise((resolve, reject) => {
-      let slq = "select *from USER ";
+      let slq = "SELECT * FROM USER";
       con.query(slq, (err, res) => {
         if (err) return reject(err);
 
         for (let u of res) {
-          let user = new User(u.id, u.name, u.balance, u.password);
+          let user = new User(u.accno, u.firstName, u.lastName, u.balance, u.email, u.phone, u.date, u.password);
           userList.push(user);
         }
         resolve(userList);
@@ -72,12 +71,12 @@ class AccountMysqlRepo {
 
   getUser(name) {
     return new Promise((resolve, reject) => {
-      let slq = `select * from USER WHERE name = '${name}' `;
+      let slq = `SELECT * FROM USER WHERE firstName = '${name}' `;
       con.query(slq, (err, res) => {
         if (err) return reject(err);
         if(res.length != 0){
           let data = res[0];
-          let user = new User(data.id, data.name, data.balance, data.password);
+          let user = new User(data.accno, data.firstName, data.lastName, data.balance, data.email, data.phone, data.date, data.password);
           resolve(user);
         }
         resolve(res);
@@ -89,12 +88,12 @@ class AccountMysqlRepo {
   getAllUsersTransactions() {
     let txnList = new Array();
     return new Promise((resolve, reject) => {
-      let sql = "select * from transaction ";
+      let sql = "SELECT * FROM TRANSACTION";
       con.query(sql, (err, res) => {
         if (err) return reject(err);
 
         for (let t of res) {
-          let txn = new Transaction(t.id, t.name, t.amount, t.type, t.date);
+          let txn = new Transaction(t.id, t.accno, t.firstName, t.lastName, t.amount, t.type, t.date);
           txnList.push(txn);
         }
         resolve(txnList);
@@ -105,13 +104,15 @@ class AccountMysqlRepo {
   getTransactions(name) {
     let txnList = new Array();
     return new Promise((resolve, reject) => {
-      let sql = `select * from transaction  WHERE name = '${name}' `;
+      let sql = `select * from transaction  WHERE firstName = '${name}' `;
       con.query(sql, (err, res) => {
         if (err) return reject(err);
         for (let data of res) {
           let transaction = new Transaction(
             data.id,
-            data.name,
+            data.accno,
+            data.firstName,
+            data.lastName,
             data.amount,
             data.type,
             data.date
@@ -126,16 +127,15 @@ class AccountMysqlRepo {
 
   async deposit(name, amount) {
     const user = await this.getUser(name).then((r) => r);
-    console.log(user);
     const txnId = uuid.v4();
 
     con.beginTransaction((err) => {
       if (err) throw err;
-      let sql1 = `INSERT INTO transaction(id,name,amount,type,date)VALUES('${txnId}','${
-        user.name
-      }','${amount}','D','${new Date()}') `;
+      const dateTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+      let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES ('${txnId}',
+      '${user.accno}', '${user.firstName}', '${user.lastName}', '${amount}', 'deposit', '${dateTime}')`;
 
-      let sql2 = `UPDATE USER SET balance = balance + ${amount} WHERE name ='${name}'`;
+      let sql2 = `UPDATE USER SET balance = balance + ${amount} WHERE firstName ='${name}'`;
       con.query(sql1, (err, res) => {
         if (err) {
           return con.rollback(function () {
@@ -170,11 +170,11 @@ class AccountMysqlRepo {
 
     con.beginTransaction((err) => {
       if (err) throw err;
-      let sql1 = `INSERT INTO Transaction(id, name, amount, type, date) VALUES ('${txnId}','${
-        user.name
-      }','${amount}','W','${new Date()}') `;
+      const dateTime = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+      let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES ('${txnId}',
+      '${user.accno}', '${user.firstName}', '${user.lastName}', '${amount}', 'withdraw', '${dateTime}')`;
 
-      let sql2 = `UPDATE USER SET balance = balance - ${amount} WHERE name ='${name}'`;
+      let sql2 = `UPDATE USER SET balance = balance - ${amount} WHERE firstName ='${name}'`;
       con.query(sql1, (err, res) => {
         if (err) {
           return con.rollback(function () {

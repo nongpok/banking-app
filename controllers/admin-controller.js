@@ -19,7 +19,7 @@ module.exports = function (app) {
     if(password == admin.password){
         const payload = {id: admin.id, name: admin.name};
         const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '10m'});
-        return res.json({accessToken: accessToken});
+        return res.json({accessToken: accessToken, payload: payload});
     }
     res.status(500).send('Incorrect Password');
   });

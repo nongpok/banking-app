@@ -15,6 +15,10 @@ class UserService{
         return this.sqlRepo.addUser(user);
     }
 
+    async getUsers(){
+        return this.sqlRepo.getUsers();
+    }
+
 }
 
 module.exports = UserService;
