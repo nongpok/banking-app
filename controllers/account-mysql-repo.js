@@ -18,7 +18,6 @@ con.connect(function (err) {
 
 class AccountMysqlRepo {
   addUser(user) {
-
     con.beginTransaction((err) => {
       if (err) throw err;
       const sql1 = `INSERT INTO USER (accno, firstName, lastName, balance, email, phone, date, password) VALUES ('${user.accno}','${user.firstName}','${user.lastName}','${user.balance}', '${user.email}','${user.phone}','${user.date}','${user.password}') `;
@@ -61,7 +60,16 @@ class AccountMysqlRepo {
         if (err) return reject(err);
 
         for (let u of res) {
-          let user = new User(u.accno, u.firstName, u.lastName, u.balance, u.email, u.phone, u.date, u.password);
+          let user = new User(
+            u.accno,
+            u.firstName,
+            u.lastName,
+            u.balance,
+            u.email,
+            u.phone,
+            u.date,
+            u.password
+          );
           userList.push(user);
         }
         resolve(userList);
@@ -69,21 +77,31 @@ class AccountMysqlRepo {
     });
   }
 
+  updateUserDetails() {}
+
   getUser(name) {
     return new Promise((resolve, reject) => {
       let slq = `SELECT * FROM USER WHERE firstName = '${name}' `;
       con.query(slq, (err, res) => {
         if (err) return reject(err);
-        if(res.length != 0){
+        if (res.length != 0) {
           let data = res[0];
-          let user = new User(data.accno, data.firstName, data.lastName, data.balance, data.email, data.phone, data.date, data.password);
+          let user = new User(
+            data.accno,
+            data.firstName,
+            data.lastName,
+            data.balance,
+            data.email,
+            data.phone,
+            data.date,
+            data.password
+          );
           resolve(user);
         }
         resolve(res);
       });
     });
   }
-
 
   getAllUsersTransactions() {
     let txnList = new Array();
@@ -93,7 +111,15 @@ class AccountMysqlRepo {
         if (err) return reject(err);
 
         for (let t of res) {
-          let txn = new Transaction(t.id, t.accno, t.firstName, t.lastName, t.amount, t.type, t.date);
+          let txn = new Transaction(
+            t.id,
+            t.accno,
+            t.firstName,
+            t.lastName,
+            t.amount,
+            t.type,
+            t.date
+          );
           txnList.push(txn);
         }
         resolve(txnList);
