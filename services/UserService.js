@@ -1,24 +1,26 @@
+class UserService {
+  constructor(sqlRepo) {
+    this.sqlRepo = sqlRepo;
+  }
 
+  async getUser(accno) {
+    return this.sqlRepo.getUser(accno);
+  }
+  async getUserByName(name) {
+    return this.sqlRepo.getUserByName(name);
+  }
 
-class UserService{
+  async updateUserDetails(user) {
+    return this.sqlRepo.updateUserDetails(user);
+  }
 
-    constructor(sqlRepo){
-        this.sqlRepo = sqlRepo;
-    }
+  async addUser(user) {
+    return this.sqlRepo.addUser(user);
+  }
 
-    async getUser(userName){
-        return this.sqlRepo.getUser(userName);
-    }
-
-
-    async addUser(user){
-        return this.sqlRepo.addUser(user);
-    }
-
-    async getUsers(){
-        return this.sqlRepo.getUsers();
-    }
-
+  async getUsers() {
+    return this.sqlRepo.getUsers();
+  }
 }
 
 module.exports = UserService;

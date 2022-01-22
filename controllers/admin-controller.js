@@ -14,7 +14,7 @@ module.exports = function (app) {
     const admin = await adminService.getAdmin(name);
 
     if (password == admin.password) {
-      const payload = { id: admin.id, name: admin.name };
+      const payload = { id: admin.id, name: admin.name, isAdmin: true };
       const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "10m",
       });

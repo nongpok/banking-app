@@ -77,9 +77,43 @@ class AccountMysqlRepo {
     });
   }
 
-  updateUserDetails() {}
+  updateUserDetails(user) {
+    let sql1 = `UPDATE USER SET firstName='${user.firstName}',lastName ='${user.lastName}' ,email='${user.email}' ,phone='${user.phone}'  WHERE accno='${user.accno}'`;
+    let sql2 = `UPDATE transaction SET firstName='${user.firstName}',lastName ='${user.lastName}' WHERE accno='${user.accno}'`;
+    con.query(sql1, (err, res) => {
+      if (err) throw err;
+      console.log("succesfully updated");
+    });
+    con.query(sql2, (err, res) => {
+      if (err) throw err;
+      console.log("succesfully updated");
+    });
+  }
 
-  getUser(name) {
+  getUser(accno) {
+    return new Promise((resolve, reject) => {
+      let slq = `SELECT * FROM USER WHERE accno = '${accno}' `;
+      con.query(slq, (err, res) => {
+        if (err) return reject(err);
+        if (res.length != 0) {
+          let data = res[0];
+          let user = new User(
+            data.accno,
+            data.firstName,
+            data.lastName,
+            data.balance,
+            data.email,
+            data.phone,
+            data.date,
+            data.password
+          );
+          resolve(user);
+        }
+        resolve(res);
+      });
+    });
+  }
+  getUserByName(name) {
     return new Promise((resolve, reject) => {
       let slq = `SELECT * FROM USER WHERE firstName = '${name}' `;
       con.query(slq, (err, res) => {
@@ -127,10 +161,10 @@ class AccountMysqlRepo {
     });
   }
 
-  getTransactions(name) {
+  getTransactions(accno) {
     let txnList = new Array();
     return new Promise((resolve, reject) => {
-      let sql = `select * from transaction  WHERE firstName = '${name}' `;
+      let sql = `select * from transaction  WHERE accno = '${accno}' `;
       con.query(sql, (err, res) => {
         if (err) return reject(err);
         for (let data of res) {
@@ -151,8 +185,9 @@ class AccountMysqlRepo {
     });
   }
 
-  async deposit(name, amount) {
-    const user = await this.getUser(name).then((r) => r);
+  async deposit(accno, amount) {
+    const user = await this.getUser(accno).then((r) => r);
+    console.log(user);
     const txnId = uuid.v4();
 
     con.beginTransaction((err) => {
@@ -161,7 +196,7 @@ class AccountMysqlRepo {
       let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES ('${txnId}',
       '${user.accno}', '${user.firstName}', '${user.lastName}', '${amount}', 'deposit', '${dateTime}')`;
 
-      let sql2 = `UPDATE USER SET balance = balance + ${amount} WHERE firstName ='${name}'`;
+      let sql2 = `UPDATE USER SET balance = balance + ${amount} WHERE accno ='${accno}'`;
       con.query(sql1, (err, res) => {
         if (err) {
           return con.rollback(function () {
@@ -189,8 +224,8 @@ class AccountMysqlRepo {
     });
   }
 
-  async withdraw(name, amount) {
-    const user = await this.getUser(name).then((r) => r);
+  async withdraw(accno, amount) {
+    const user = await this.getUser(accno).then((r) => r);
     console.log(user);
     const txnId = uuid.v4();
 
@@ -200,7 +235,7 @@ class AccountMysqlRepo {
       let sql1 = `INSERT INTO transaction(id, accno, firstName, lastName, amount, type, date) VALUES ('${txnId}',
       '${user.accno}', '${user.firstName}', '${user.lastName}', '${amount}', 'withdraw', '${dateTime}')`;
 
-      let sql2 = `UPDATE USER SET balance = balance - ${amount} WHERE firstName ='${name}'`;
+      let sql2 = `UPDATE USER SET balance = balance - ${amount} WHERE accno ='${accno}'`;
       con.query(sql1, (err, res) => {
         if (err) {
           return con.rollback(function () {

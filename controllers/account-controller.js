@@ -107,7 +107,7 @@ module.exports = function (app, swaggerDocs) {
     const name = req.body.name;
     const password = req.body.password;
 
-    let user = await userService.getUser(name);
+    let user = await userService.getUserByName(name);
 
     if (user.length == 0) {
       res.status(500).send("Invalid user");
@@ -115,7 +115,7 @@ module.exports = function (app, swaggerDocs) {
     }
     //authenticate user
     if (await bcrypt.compare(password, user.password)) {
-      const payload = { id: user.accno, name: user.firstName };
+      const payload = { id: user.accno, name: user.firstName, isAdmin: false };
       const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "20m",
       });
@@ -124,6 +124,22 @@ module.exports = function (app, swaggerDocs) {
     }
 
     res.status(500).send("Incorrect Password");
+  });
+
+  app.post("/api/v1/account/update/:name", async (req, res) => {
+    const date = moment(new Date()).format("YYYY-MM-DD");
+    const user = new User(
+      req.body.accno,
+      req.body.firstName,
+      req.body.lastName,
+      Number(req.body.balance),
+      req.body.email,
+      req.body.phone,
+      date,
+      req.body.password
+    );
+    await userService.updateUserDetails(user);
+    res.json(user);
   });
 
   app.get("/api/v1/account/user/:name", async (req, res) => {
