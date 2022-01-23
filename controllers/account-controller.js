@@ -146,5 +146,15 @@ module.exports = function (app, swaggerDocs) {
     const user = await userService.getUser(req.params.name);
     res.json(user);
   });
+
+  app.get("/api/v1/account/image", async (req, res) => {
+    const src = await userService.getUserDocs("ACC001");
+    res.send(`<img src=${src}>`);
+  });
+
+  app.post("/api/v1/account/user/:id/upload-docs", async (req, res) => {
+    const data = await userService.uploadUsrDocs(req.params.id, req.body.path);
+    res.json(data);
+  });
 };
 //

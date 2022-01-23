@@ -21,6 +21,14 @@ class UserService {
   async getUsers() {
     return this.sqlRepo.getUsers();
   }
+
+  async getUserDocs(accno) {
+    return this.sqlRepo.getUserDocs(accno);
+  }
+
+  async uploadUsrDocs(accno, path) {
+    return this.sqlRepo.uploadUsrDocs(accno, path);
+  }
 }
 
 module.exports = UserService;

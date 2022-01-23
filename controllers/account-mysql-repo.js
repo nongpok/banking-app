@@ -3,6 +3,7 @@ const User = require("../services/User");
 const Transaction = require("../services/Transaction");
 const uuid = require("uuid");
 const moment = require("moment");
+const { reject } = require("bcrypt/promises");
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -261,6 +262,30 @@ class AccountMysqlRepo {
       });
       console.log("transaction successful");
     });
+  }
+
+  getUserDocs(accno) {
+    let buffer = null;
+
+    return new Promise((resolve, reject) => {
+      let sql = `Select adharcard from documents where accno='${accno}'`;
+      con.query(sql, (err, res) => {
+        if (err) reject(err);
+        buffer = res[0].adharcard;
+        let src = "data:image/jpeg;base64," + buffer.toString("base64");
+        resolve(src);
+      });
+    });
+  }
+
+  uploadUsrDocs(accno, path) {
+    console.log(path);
+    // let sql = `insert into documents (accno, adharcard) values ('${accno}', LOAD_FILE('${path}'));`;
+    // console.log(sql);
+    // con.query(sql, (err, res) => {
+    //   if (err) throw err;
+    //   console.log("upload succesfully");
+    // });
   }
 }
 
