@@ -1,4 +1,5 @@
 require("dotenv").config();
+const nodemailer = require("nodemailer");
 
 const User = require("../services/User");
 const UserService = require("../services/UserService");
@@ -9,6 +10,14 @@ const jwt = require("jsonwebtoken");
 const moment = require("moment");
 
 const swaggerUI = require("swagger-ui-express");
+
+let transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "ankitkmonocept@gmail.com",
+    pass: "monocept13@1998",
+  },
+});
 
 module.exports = function (app, swaggerDocs) {
   const sqlRepo = new AccountMysqlRepo();
@@ -73,6 +82,25 @@ module.exports = function (app, swaggerDocs) {
       hashedPassword
     );
     await userService.addUser(user);
+    let mailOption = {
+      from: "ankitkmonocept@gmail.com",
+      to: `${req.body.email}`,
+      subject: "Successfully Registered",
+      text: ` Account No :${accno}
+              firstName: ${req.body.firstName}   
+              lastName : ${req.body.lastName}
+              balance  :${req.body.balance}
+              password :${req.body.password}
+      `,
+    };
+
+    transporter.sendMail(mailOption, (err, data) => {
+      if (err) {
+        console.log("error occur");
+      } else {
+        console.log("email send");
+      }
+    });
     res.json(user);
   });
 
